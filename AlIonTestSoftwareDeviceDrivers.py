@@ -1,14 +1,5 @@
-from cgi import test
-import graphlib
-from logging.config import valid_ident
-from optparse import Values
-import time
-from tkinter import Y
 import pyvisa
-import matplotlib.pyplot as plt
-
-
-
+from tkinter import *
 
 
 # Class for communication with the NI-VISA driver to control the power supply
@@ -20,20 +11,40 @@ class PowerSupplyController:
     def __init__(self) -> None:
         self.resourceManager = pyvisa.ResourceManager()
         self.powerSupply = self.resourceManager.open_resource(self.powerSupplyName)
+        
 
     # Function that returns the name of connected device
     def checkDeviceConnection(self):
         print(self.powerSupply.query("*IDN?"))
 
     # Functions that allow user to set the maximum voltage, current and power for safety
-    def setMaxVoltage(self, volts : int):
-        self.powerSupply.write("SOUR:VOLT:LIMIT:HIGH " + str(volts))
+    def setMaxVoltage(self, *volts):
+        try:
+            self.powerSupply.write("SOUR:VOLT:LIMIT:HIGH " + str((volts[0])))
+        except:
+            self.powerSupply.write("SOUR:VOLT:LIMIT:HIGH MAX")
 
-    def setMaxCurrent(self, amps : int):
-        self.powerSupply.write("SOUR:CURR:LIMIT:HIGH " + str(amps))
+    def setMaxCurrent(self, *amps):
+        try:
+            self.powerSupply.write("SOUR:CURR:LIMIT:HIGH " + str(amps[0]))
+        except:
+            self.powerSupply.write("SOUR:CURR:LIMIT:HIGH MAX")
 
-    def setMaxPower(self, watt : int):
-        self.powerSupply.write("SOUR:POW:PROT:HIGH " + str(watt))
+    def setMaxPower(self, *watt):
+        try:
+            self.powerSupply.write("SOUR:POW:PROT:HIGH " + str(watt[0]))
+        except:
+            self.powerSupply.write("SOUR:POW:PROT:HIGH MAX")
+
+
+    def getVoltage(self):
+        return self.powerSupply.query("FETCH:VOLT?")
+
+    def getCurrent(self):
+        return self.powerSupply.query("FETCH:CURR?")
+
+    def getPower(self):
+        return self.powerSupply.query("FETCH:POW?")
         
 
     # Function for constant current charging, taking in current in ampers
@@ -56,18 +67,18 @@ class PowerSupplyController:
         # Turn on output
         self.powerSupply.write("CONF:OUTP ON")
 
-    # TODO FIX THE CP FUNCTION AND TEST FOR CORRECT VALUES
-
-    # Function for constant power charging, taking in power in milliamperhours and duration in seconds
-    #   def chargeCP (self, milliamphours, seconds):
+    # Function for constant voltage charging, taking in voltage in volts
+    def chargeCV(self, watts : int):
         # Turn of all output
-        #   self.powerSupply.write("CONF:OUTP OFF")
+        self.powerSupply.write("CONF:OUTP OFF")
         # Set desired voltiage
-        #   self.powerSupply.write("SOUR:POW " + str(milliamphours * 0.001))
+        self.powerSupply.write("PROG:CP:POW " + str(watts))
         # Turn on output
-        #   self.powerSupply.write("CONF:OUTP ON")
-    
-    # Funtion to stop current charging method
+        self.powerSupply.write("CONF:OUTP ON")
+
+
+
+
     def stopCharge(self):
         self.powerSupply.write("CONF:OUTP OFF")
 
@@ -96,11 +107,26 @@ class ElectronicLoadController:
     def checkDeviceConnection(self):
         print(self.electronicLoad.query("*IDN?"))
 
+    def setMaxCurrent(self, amps):
+        self.electronicLoad.write("VOLT:STAT:ILIM " + str(amps))
+
+    def getVolts(self):
+        return self.electronicLoad.query("FETCH:VOLT?")
+
+    def getCurrent(self):
+        return self.electronicLoad.query("FETCH:CURR?")
+
+    def getPower(self):
+        return self.electronicLoad.query("FETCH:POW?")
+
+
     
 
     def dischargeCV(self, volts):
         # Turn output off
         self.electronicLoad.write("LOAD:STAT:OFF")
+        # Switch to CV mode
+        self.electronicLoad.write("MODE CVH")
         # Set the constant voltage
         self.electronicLoad.write("VOLT:STAT:L1 " + str(volts))
         # Turn on output for connected channel
@@ -109,6 +135,8 @@ class ElectronicLoadController:
     def dischargeCC(self, amps):
         # Turn output off
         self.electronicLoad.write("LOAD:STAT:OFF")
+        # Switch to CV mode
+        self.electronicLoad.write("MODE CCH")
         # Set the desired current
         self.electronicLoad.write("CURR:STAT:L1 " + str(amps))
         # Turn on the output
@@ -117,6 +145,8 @@ class ElectronicLoadController:
     def dischargeCP(self, watts):
         # Turn output off
         self.electronicLoad.write("LOAD:STAT:OFF")
+        # Switch to CP mode
+        self.electronicLoad.write("MODE CPH")
         # Set the desired power
         self.electronicLoad.write("POW:STAT:L1 " + str(watts))
         # Turn output on
@@ -129,7 +159,7 @@ class ElectronicLoadController:
 
 
 # Class for communication with the NI-VISA driver to control the multimeter
-class multimeterController:
+class MultimeterController:
     
     # Variable to keep the resource name of the mutimeter
     multimeterName = "USB0::0x1698::0x083F::TW00014586::INSTR"
@@ -144,95 +174,14 @@ class multimeterController:
         print(self.multimeter.query("*IDN?"))
 
 
-    def getTemp(self):
+    def getTemperature(self):
         return self.multimeter.query("MEAS:TEMP?")
-
-    def getMilliAmps(self):
-        return self.multimeter.query("MEAS:CURR:DC?")
 
     def getVolts(self):
         return self.multimeter.query("MEAS:VOLT:DC?")
 
     def getResistance(self):
         return self.multimeter.query("MEAS:RES?")
+
+
         
-
-class TestController:
-
-    def __init__(self) -> None:
-        # self.powerSupplyController = PowerSupplyController()
-        self.electronicLoadController = ElectronicLoadController()
-        # self.multimeterController = multimeterController()
-    
-    # Function for capacity testing that takes in the open circuit Voltage of a full battery (OCVFull), the open circuit voltage
-    #  of an empty battery (OCVEmpty) and the estemated discharge current for empting the battery in one hour (C)
-    def cpacityTest(self, OCVFull : int, OCVEmpty : int, C : int):
-        # Charge the battery with constant voltage of OCVFull
-        self.powerSupplyController.chargeCV(OCVFull)
-        # Stop chargin the battery when the current is below a threshold
-        # TODO find an aproprite current threshol
-        while (self.multimeterController.getMilliAmps() < "Insert threshhold"):
-            time.sleep(1)
-        # When battery is full, stop charging
-        self.powerSupplyController.stopCharge() 
-
-        # Start discharging with a constant current of C
-        self.electronicLoadController.dischargeCC(C)
-
-        # Continue discharging while the voltage of the battery remains above the OCVEmpty
-        while(self.multimeterController.getVolts > OCVEmpty):
-            time.sleep(1)
-        
-        # Stop discharging when the Voltage has reached OCV
-        self.electronicLoadController.stopDischarge()
-
-
-    def basicChargeTest(self):
-        graph = Graph()
-        self.electronicLoadController
-        self.electronicLoadController.dischargeCV(1.45)
-
-        time.sleep(30)
-
-        for i in range(600):
-            x = self.electronicLoadController.electronicLoad.query("FETCH:CURR?")
-             # y = float(x[:-5]) * (10 ** int(x[9:]))
-            print(x)
-            graph.addValue(x)
-            time.sleep(1)
-        
-        self.electronicLoadController.stopDischarge()
-
-        graph.graphBasicCapacity()
-
-
-
-
-class Graph:
-    
-    # List to store values
-    values = []
-
-    # Function to reset value list
-    def clearValues(self):
-        self.values = []
-
-    # Function to add values to list
-    def addValue(self, value):
-        self.values.append(float(value))
-
-    # Function to graph a capacity test
-    def graphBasicCapacity(self):
-        plt.style.use("ggplot")
-        x = list(range(len(self.values)))
-        plt.plot(x, self.values)
-        plt.xlabel("Time in seconds")
-        plt.ylabel("Current")
-        plt.title("Battery discharge curve")
-
-        plt.show()
-
-
-testController = TestController()
-
-testController.basicChargeTest()
