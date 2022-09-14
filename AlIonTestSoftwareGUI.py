@@ -9,6 +9,7 @@ from tkinter import *
 import customtkinter
 from AlIonBatteryTestSoftware import TestController
 from matplotlib.animation import FuncAnimation
+import os
 
 
 
@@ -73,7 +74,7 @@ class GUI(customtkinter.CTk):
         
 
         self.title("ALOR Battery Test Software")
-        self.iconphoto(False, tkinter.PhotoImage(file='C:/Users/sirjo/Desktop/ALOR/Al-ion Battery Test Software/blackALOR.png'))
+        self.iconphoto(False, tkinter.PhotoImage(file='Desktop/ALOR/Al-ion Battery Test Software/blackALOR.png'))
         self.geometry(f"{GUI.WIDTH}x{GUI.HEIGHT}")
         self.protocol("WM_DELETE_WINDOW", self.on_closing)  # call .on_closing() when GUI gets closed
 
@@ -426,7 +427,7 @@ class GUI(customtkinter.CTk):
 
         self.automatetTestSequenceWindow.title("Testing information")
 
-        self.automatetTestSequenceWindow.iconphoto(False, tkinter.PhotoImage(file='C:/Users/sirjo/Desktop/ALOR/Al-ion Battery Test Software/blackALOR.png'))
+        self.automatetTestSequenceWindow.iconphoto(False, tkinter.PhotoImage(file='Desktop/ALOR/Al-ion Battery Test Software/blackALOR.png'))
 
         
         self.label_ChargeTime = customtkinter.CTkLabel(master=self.automatetTestSequenceWindow,
@@ -497,7 +498,7 @@ class GUI(customtkinter.CTk):
 
         self.batteryValuesWindow.title("Battery information")
 
-        self.batteryValuesWindow.iconphoto(False, tkinter.PhotoImage(file='C:/Users/sirjo/Desktop/ALOR/Al-ion Battery Test Software/blackALOR.png'))
+        self.batteryValuesWindow.iconphoto(False, tkinter.PhotoImage(file='Desktop/ALOR/Al-ion Battery Test Software/blackALOR.png'))
 
 
         self.label_OCVFull = customtkinter.CTkLabel(master=self.batteryValuesWindow,
@@ -729,6 +730,5 @@ if __name__ == "__main__":
     gui.update()
 
     gui.mainloop()
-
 
 

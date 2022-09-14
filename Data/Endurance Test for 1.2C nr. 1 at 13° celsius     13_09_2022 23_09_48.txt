@@ -1,0 +1,4 @@
+  Time in seconds    Volts    Current    Power
+-----------------  -------  ---------  -------
+
+                0        0         -8       -0

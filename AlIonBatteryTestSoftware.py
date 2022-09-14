@@ -236,7 +236,7 @@ class DataStorage:
         table = tabulate(data, headers=head, tablefmt="simple")
         print(table)  
         today = date.today() 
-        with open(f"C:/Users/sirjo/Desktop/ALOR/Al-ion Battery Test Software/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "w") as f:
+        with open(f"Desktop/ALOR/Al-ion Battery Test Software/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "w") as f:
             f.write(str(table))
         self.volts = []
         self.current = []
@@ -250,7 +250,7 @@ class DataStorage:
         plt.plot(range(len(self.volts)), self.volts, color = "#3a55b4")
         ahCapacity = len(self.volts) / 3600
         plt.legend([f"{'{:.2f}'.format(ahCapacity)} aH Capacity"])
-        plt.savefig(f"C:/Users/sirjo/Desktop/ALOR/Al-ion Battery Test Software/Data/Capacity test for {C_rate}C nr. {cyclenumber + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png")
+        plt.savefig(f"Desktop/ALOR/Al-ion Battery Test Software/Data/Capacity test for {C_rate}C nr. {cyclenumber + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png")
         plt.clf()
         
 
@@ -260,7 +260,7 @@ class DataStorage:
         plt.xlabel("Cycle number")
         plt.title(f"Change in capacity at {temperature}° celsius with {C_rate} C current")
         plt.plot(range(len(ampHours)), ampHours, "o", color = "#3a55b4")
-        plt.savefig(f"C:/Users/sirjo/Desktop/ALOR/Al-ion Battery Test Software/Data/Endurance test for {C_rate}C at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png")
+        plt.savefig(f"Desktop/ALOR/Al-ion Battery Test Software/Data/Endurance test for {C_rate}C at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png")
         plt.clf()
         
 
