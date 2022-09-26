@@ -45,7 +45,6 @@ class GUI(customtkinter.CTk):
         
 
         self.testController = TestController()
-        self.Connected = self.testController.Connected
 
 
         self.counter = 0

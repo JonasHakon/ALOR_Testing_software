@@ -36,7 +36,7 @@ class PowerSupplyController:
         except:
             self.powerSupply.write("SOUR:POW:PROT:HIGH MAX")
 
-
+    # Functions to obtain the voltage, current and power from the power supply
     def getVoltage(self):
         return self.powerSupply.query("FETCH:VOLT?")
 
@@ -78,7 +78,7 @@ class PowerSupplyController:
 
 
 
-
+    # Functions to stop the powersupply from charging
     def stopCharge(self):
         self.powerSupply.write("CONF:OUTP OFF")
 
@@ -107,15 +107,19 @@ class ElectronicLoadController:
     def checkDeviceConnection(self):
         print(self.electronicLoad.query("*IDN?"))
 
+    # Function that sets the maximum current for the electronic load
     def setMaxCurrent(self, amps):
         self.electronicLoad.write("VOLT:STAT:ILIM " + str(amps))
 
+    # Function that receves a voltage reading from the electronic load
     def getVolts(self):
         return self.electronicLoad.query("FETCH:VOLT?")
 
+    # Function that receves a current reading from the electrinic load
     def getCurrent(self):
         return self.electronicLoad.query("FETCH:CURR?")
 
+    # Function that receves a power reading from the electronic load
     def getPower(self):
         return self.electronicLoad.query("FETCH:POW?")
 
@@ -152,6 +156,7 @@ class ElectronicLoadController:
         # Turn output on
         self.electronicLoad.write("LOAD:STAT ON")
 
+    # Function to stop the electronic load from discharging the battery
     def stopDischarge(self):
         self.electronicLoad.write("LOAD:STAT OFF")
 
@@ -173,13 +178,15 @@ class MultimeterController:
     def checkDeviceConnection(self):
         print(self.multimeter.query("*IDN?"))
 
-
+    # Function that returns the temperature from the multimeter
     def getTemperature(self):
         return self.multimeter.query("MEAS:TEMP?")
 
+    # Function that returns the voltage from the multimeter
     def getVolts(self):
         return self.multimeter.query("MEAS:VOLT:DC?")
 
+    # Function that returns the resistance from the multimeter
     def getResistance(self):
         return self.multimeter.query("MEAS:RES?")
 
