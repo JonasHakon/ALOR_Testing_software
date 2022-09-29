@@ -253,7 +253,8 @@ class DataStorage:
             with open(f"Desktop/ALOR/Al-ion Battery Test Software/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "w") as f:
                 f.write(str(table))
         except:
-            with open(os.path.abspath(f"Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "w")) as f:
+            abs = os.path.abspath("").replace("\\", "/")
+            with open(f"{abs}/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "x") as f:
                 f.write(str(table))
         # Empty the result values
         self.volts = []
