@@ -9,6 +9,7 @@ from tabulate import tabulate
 import threading
 from AlIonTestSoftwareDeviceDrivers import PowerSupplyController, ElectronicLoadController, MultimeterController
 from AlIonTestSoftwareDeviceDriversMock import PowerSupplyControllerMock, ElectronicLoadControllerMock, MultimeterControllerMock
+import os
 
 
 
@@ -61,23 +62,23 @@ class TestController:
         self.electronicLoadController.stopDischarge()
 
     def getVoltage(self):
-        x = self.electronicLoadController.getVolts()
+        x = self.multimeterController.getVolts()
         return float(x)
     def getCurrent(self):
         return (float(self.powerSupplyController.getCurrent()) - float(self.electronicLoadController.getCurrent()))
 
-    def setMaxVoltage(self, volts : int):
-        self.powerSupplyController.setMaxVoltage(volts=volts)
+    def setMaxVoltage(self, volts : float):
+        self.powerSupplyController.setMaxVoltage(volts)
     def setMaxVoltageMax(self):
-        self.powerSupplyController.setMaxVoltage()
-    def setMaxCurrent(self, amps : int):
-        self.powerSupplyController.setMaxCurrent(amps=amps)
+        self.powerSupplyController.setVoltageMax()
+    def setMaxCurrent(self, amps : float):
+        self.powerSupplyController.setMaxCurrent(amps)
     def setMaxCurrentMax(self):
-        self.powerSupplyController.setMaxCurrent()
-    def setMaxPower(self, watts : int):
-        self.powerSupplyController.setMaxPower(watts=watts)
+        self.powerSupplyController.setCurrentMax()
+    def setMaxPower(self, watts : float):
+        self.powerSupplyController.setMaxPower(watts)
     def setMaxPowerMax(self):
-        self.powerSupplyController.setMaxPower()
+        self.powerSupplyController.setPowerMax()
 
     # Test protocal for testing the capacity of a battery
     def capacityTest(self, chargeTime : int, waitTime : int, numCycles : int, CPar, temp : int):
@@ -223,12 +224,12 @@ class DataStorage:
         self.amphours = []
 
     # Function to add voltage value
-    def addVoltage(self, votls : int):
-        self.volts.append(float('{:.0f}'.format(votls)))
+    def addVoltage(self, votls : float):
+        self.volts.append(float('{:.4f}'.format(votls)))
 
     # Function to add current value
-    def addCurrent(self, ampers : int):
-        self.current.append(float('{:.0f}'.format(ampers)))
+    def addCurrent(self, ampers : float):
+        self.current.append(float('{:.4f}'.format(ampers)))
 
     # Function for creating a table
     def createTable(self, testName : string, c_rate : float, cycleNr : int, temperature : float):
@@ -248,8 +249,12 @@ class DataStorage:
         print(table)  
         # Store the table in a text file
         today = date.today() 
-        with open(f"Desktop/ALOR/Al-ion Battery Test Software/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "w") as f:
-            f.write(str(table))
+        try:
+            with open(f"Desktop/ALOR/Al-ion Battery Test Software/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "w") as f:
+                f.write(str(table))
+        except:
+            with open(os.path.abspath(f"Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "w")) as f:
+                f.write(str(table))
         # Empty the result values
         self.volts = []
         self.current = []
@@ -267,7 +272,10 @@ class DataStorage:
         # Inclue the amphour capacity in the graph
         plt.legend([f"{'{:.2f}'.format(ahCapacity)} aH Capacity"])
         # Store the graph in a file
-        plt.savefig(f"Desktop/ALOR/Al-ion Battery Test Software/Data/Capacity test for {C_rate}C nr. {cyclenumber + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png")
+        try:
+            plt.savefig(f"Desktop/ALOR/Al-ion Battery Test Software/Data/Capacity test for {C_rate}C nr. {cyclenumber + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png")
+        except:
+            plt.savefig(os.path.abspath(f"Data/Capacity test for {C_rate}C nr. {cyclenumber + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png"))
         # Clear the graph
         plt.clf()
         
@@ -280,7 +288,10 @@ class DataStorage:
         plt.title(f"Change in capacity at {temperature}° celsius with {C_rate} C current")
         plt.plot(range(len(ampHours)), ampHours, "o", color = "#3a55b4")
         # Store the graph in a file
-        plt.savefig(f"Desktop/ALOR/Al-ion Battery Test Software/Data/Endurance test for {C_rate}C at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png")
+        try:
+            plt.savefig(f"Desktop/ALOR/Al-ion Battery Test Software/Data/Endurance test for {C_rate}C at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png")
+        except:
+            plt.savefig(os.path.abspath(f"Data/Endurance test for {C_rate}C at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png"))
         # Clear the graph
         plt.clf()
         

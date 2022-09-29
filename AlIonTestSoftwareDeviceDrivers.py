@@ -19,22 +19,22 @@ class PowerSupplyController:
 
     # Functions that allow user to set the maximum voltage, current and power for safety
     def setMaxVoltage(self, *volts):
-        try:
-            self.powerSupply.write("SOUR:VOLT:LIMIT:HIGH " + str((volts[0])))
-        except:
-            self.powerSupply.write("SOUR:VOLT:LIMIT:HIGH MAX")
+        self.powerSupply.write("SOUR:VOLT:LIMIT:HIGH " + str((volts[0])))
+
+    def setVoltageMax(self):
+        self.powerSupply.write("SOUR:VOLT:LIMIT:HIGH MAX")
 
     def setMaxCurrent(self, *amps):
-        try:
-            self.powerSupply.write("SOUR:CURR:LIMIT:HIGH " + str(amps[0]))
-        except:
-            self.powerSupply.write("SOUR:CURR:LIMIT:HIGH MAX")
+        self.powerSupply.write("SOUR:CURR:LIMIT:HIGH " + str(amps[0]))
+    
+    def setCurrentMax(self):
+        self.powerSupply.write("SOUR:CURR:LIMIT:HIGH MAX")
 
     def setMaxPower(self, *watt):
-        try:
-            self.powerSupply.write("SOUR:POW:PROT:HIGH " + str(watt[0]))
-        except:
-            self.powerSupply.write("SOUR:POW:PROT:HIGH MAX")
+        self.powerSupply.write("SOUR:POW:PROT:HIGH " + str(watt[0]))
+    
+    def setPowerMax(self):
+        self.powerSupply.write("SOUR:POW:PROT:HIGH MAX")
 
     # Functions to obtain the voltage, current and power from the power supply
     def getVoltage(self):
@@ -68,7 +68,7 @@ class PowerSupplyController:
         self.powerSupply.write("CONF:OUTP ON")
 
     # Function for constant voltage charging, taking in voltage in volts
-    def chargeCV(self, watts : int):
+    def chargeCP(self, watts : int):
         # Turn of all output
         self.powerSupply.write("CONF:OUTP OFF")
         # Set desired voltiage

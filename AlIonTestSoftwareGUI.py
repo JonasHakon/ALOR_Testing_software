@@ -1,4 +1,3 @@
-
 from math import floor
 from sqlite3 import connect
 import tkinter
@@ -73,7 +72,10 @@ class GUI(customtkinter.CTk):
         
 
         self.title("ALOR Battery Test Software")
-        self.iconphoto(False, tkinter.PhotoImage(file='Desktop/ALOR/Al-ion Battery Test Software/blackALOR.png'))
+        try:
+            self.iconphoto(False, tkinter.PhotoImage(file=os.path.abspath("Desktop\ALOR\Al-ion Battery Test Software\\blackALOR.png")))
+        except:
+            self.iconphoto(False, tkinter.PhotoImage(file=os.path.abspath("blackALOR.png")))
         self.geometry(f"{GUI.WIDTH}x{GUI.HEIGHT}")
         self.protocol("WM_DELETE_WINDOW", self.on_closing)  # call .on_closing() when GUI gets closed
 
@@ -426,9 +428,10 @@ class GUI(customtkinter.CTk):
 
         self.automatetTestSequenceWindow.title("Testing information")
 
-        self.automatetTestSequenceWindow.iconphoto(False, tkinter.PhotoImage(file='Desktop/ALOR/Al-ion Battery Test Software/blackALOR.png'))
-
-        
+        try:
+            self.automatetTestSequenceWindow.iconphoto(False, tkinter.PhotoImage(file=os.path.abspath("Desktop\ALOR\Al-ion Battery Test Software\\blackALOR.png")))
+        except:
+            self.automatetTestSequenceWindow.iconphoto(False, tkinter.PhotoImage(file=os.path.abspath("blackALOR.png")))
         self.label_ChargeTime = customtkinter.CTkLabel(master=self.automatetTestSequenceWindow,
                                                text = "Charging time (minutes):")
         self.label_ChargeTime.grid(row=0,column=1,padx=10,pady=10, sticky = "w")
@@ -497,8 +500,10 @@ class GUI(customtkinter.CTk):
 
         self.batteryValuesWindow.title("Battery information")
 
-        self.batteryValuesWindow.iconphoto(False, tkinter.PhotoImage(file='Desktop/ALOR/Al-ion Battery Test Software/blackALOR.png'))
-
+        try:
+            self.batteryValuesWindow.iconphoto(False, tkinter.PhotoImage(file=os.path.abspath("Desktop\ALOR\Al-ion Battery Test Software\\blackALOR.png")))
+        except:
+            self.batteryValuesWindow.iconphoto(False, tkinter.PhotoImage(file=os.path.abspath("blackALOR.png")))
 
         self.label_OCVFull = customtkinter.CTkLabel(master=self.batteryValuesWindow,
                                                text = "Upper limit voltage (V):")
@@ -718,16 +723,16 @@ class GUI(customtkinter.CTk):
 
 
     def on_closing(self, event=0):
+        self.stop()
         self.destroy()
 
 
 if __name__ == "__main__":
     gui = GUI()
-
     gui.batteryValuesWindow.attributes('-topmost', True)
 
     gui.update()
 
     gui.mainloop()
 
-
+#print(os.path.abspath("Desktop\ALOR\Al-ion Battery Test Software\blackALOR.png"))
