@@ -10,6 +10,7 @@ import threading
 from AlIonTestSoftwareDeviceDrivers import PowerSupplyController, ElectronicLoadController, MultimeterController
 from AlIonTestSoftwareDeviceDriversMock import PowerSupplyControllerMock, ElectronicLoadControllerMock, MultimeterControllerMock
 import os
+import pandas as pd
 
 
 
@@ -211,6 +212,134 @@ class TestController:
         # Set the event to indicate that testing is finished
         self.event.set()
 
+
+
+
+    def upsTest(self, chargeTime : int, dischargeTime : int, waitTime : int, numCycles : int, CPar, temp : int):
+        self.event.clear()
+        # Create a loop that will run one time for each element of the eather CPar or TempPar
+        for cParameter in CPar: 
+            # Create a loop for each cycle for the cParameter
+            for cycleNumber in range(int(numCycles)): 
+                # dataStorage object to keep track of tets data
+                dataStorage = DataStorage()
+                # Charge with a constant voltage of self.OCVFull
+                self.chargeCV(self.OCVFull)
+                # Wait the desired amount of minutes
+                print(f"Charging for {chargeTime} min")
+                for i in range(floor(float(chargeTime) * 60)):
+                    # Break the loop if the testing has been manualy stopped
+                    if (self.event.is_set()):
+                        print("Testing has beed manually stopped")
+                        self.event.clear()
+                        exit()
+                    # Optain and store voltage and current
+                    v = self.getVoltage()
+                    c = self.getCurrent()
+                    dataStorage.addVoltage(v)
+                    dataStorage.addCurrent(c)
+                    time.sleep(1)
+                # Once the OCV has reached OCVFull we can start discharging
+                self.stopCharge()
+                # Wait the desired number of seconds
+                print(f"Wating for {waitTime} min")
+                for i in range(floor(float(waitTime) * 60)):
+                    if (self.event.is_set()):
+                        print("Testing has beed manually stopped")
+                        self.event.clear()
+                        exit()
+                    v = self.getVoltage()
+                    c = self.getCurrent()
+                    dataStorage.addVoltage(v)
+                    dataStorage.addCurrent(c)
+                    time.sleep(1)
+                # Discharging at c rate current
+                self.dischargeCC(self.C_rate * cParameter)
+                # Creating a loop that will break once voltage has reached desired levels
+                print(f"Starting discharge in cycle nr.{cycleNumber + 1} with discharge rate {cParameter}C")
+                for i in range(floor(float(dischargeTime) * 60.0)):
+                    if (self.event.is_set()):
+                        print("Testing has beed manually stopped")
+                        self.event.clear()
+                        exit()
+                    # Optain and store voltage and current
+                    v = self.getVoltage()
+                    c = self.getCurrent()
+                    dataStorage.addVoltage(v)
+                    dataStorage.addCurrent(c)
+                    time.sleep(1)
+                # Stop discharging battery
+                self.electronicLoadController.stopDischarge()
+                # Create a table from the current test data
+                dataStorage.createTable("UPS Test", cParameter, cycleNumber, temp )
+        # Set the event to indicate that testing is finished
+        self.event.set()
+
+
+    def PhotoVoltaicTest(self, waitTime : int, numCycles : int, CParCharge, CParDischarge : int, temp : int):
+        self.event.clear()
+        # Create a loop that will run one time for each element of the eather CPar or TempPar
+        for cParameter in CParCharge: 
+            # Create a loop for each cycle for the cParameter
+            for cycleNumber in range(int(numCycles)): 
+                # dataStorage object to keep track of tets data
+                dataStorage = DataStorage()
+                # Charge with a constant voltage of self.OCVFull
+                self.chargeCC(float(CParDischarge) * float(self.C_rate))
+                # Wait until the desired voltage is reached
+                print(f"Charging")
+                while (True):
+                    if (self.event.is_set()):
+                        print("Testing has beed manually stopped")
+                        self.event.clear()
+                        exit()
+                    # Optain and store voltage and current
+                    v = self.getVoltage()
+                    c = self.getCurrent()
+                    dataStorage.addVoltage(v)
+                    dataStorage.addCurrent(c)
+                    if (float(v) > self.OCVFull):
+                        break
+                    time.sleep(1)
+                # Once the OCV has reached OCVFull we can start discharging
+                self.stopCharge()
+                # Wait the desired number of seconds
+                print(f"Wating for {waitTime} min")
+                for i in range(floor(float(waitTime) * 60)):
+                    if (self.event.is_set()):
+                        print("Testing has beed manually stopped")
+                        self.event.clear()
+                        exit()
+                    v = self.getVoltage()
+                    c = self.getCurrent()
+                    dataStorage.addVoltage(v)
+                    dataStorage.addCurrent(c)
+                    time.sleep(1)
+                # Discharging at c rate current
+                self.dischargeCC(self.C_rate * cParameter)
+                
+                # Creating a loop that will break once voltage has reached desired levels
+                print(f"Starting discharge in cycle nr.{cycleNumber + 1} with discharge rate {cParameter}C")
+                while (True):
+                    if (self.event.is_set()):
+                        print("Testing has beed manually stopped")
+                        self.event.clear()
+                        exit()
+                    # Optain and store voltage and current
+                    v = self.getVoltage()
+                    c = self.getCurrent()
+                    dataStorage.addVoltage(v)
+                    dataStorage.addCurrent(c)
+                    if (float(v) < self.OCVEmpty):
+                        break
+                    time.sleep(1)
+                # Stop discharging battery
+                self.electronicLoadController.stopDischarge()
+                # Create a table from the current test data
+                dataStorage.createTable("Endurance Test", cParameter, cycleNumber, temp )
+        # Set the event to indicate that testing is finished
+        self.event.set()
+
             
 
             
@@ -246,16 +375,19 @@ class DataStorage:
         # Create a table from the 2 dimentional array
         head = ["Time in seconds", "Volts", "Current", "Power"]
         table = tabulate(data, headers=head, tablefmt="simple")
+        df = pd.DataFrame(data, columns=head)
         print(table)  
         # Store the table in a text file
         today = date.today() 
         try:
             with open(f"Desktop/ALOR/Al-ion Battery Test Software/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "w") as f:
                 f.write(str(table))
+            df.to_csv(f"Desktop/ALOR/Al-ion Battery Test Software/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".csv", index=False)
         except:
             abs = os.path.abspath("").replace("\\", "/")
             with open(f"{abs}/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "x") as f:
                 f.write(str(table))
+            df.to_csv(f"{abs}/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".csv", index=False)
         # Empty the result values
         self.volts = []
         self.current = []

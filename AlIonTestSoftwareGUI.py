@@ -64,6 +64,10 @@ class GUI(customtkinter.CTk):
 
         self.volts = []
 
+        self.amps = []
+
+        self.watts = []
+
 
 
 
@@ -123,18 +127,32 @@ class GUI(customtkinter.CTk):
                                                             fg_color=self.actionButtonColor)
         self.button_enduranceTest.grid(row=3, column=0, pady=10, padx=10, sticky="n")
 
+        self.button_upsTest = customtkinter.CTkButton(master=self.frame_ATS,
+                                                            text="UPS Test", 
+                                                            width=200,
+                                                            command=self.upsTest,
+                                                            fg_color=self.actionButtonColor)
+        self.button_upsTest.grid(row=4, column=0, pady=10, padx=10, sticky="n")
+
+        self.button_photoVoltaicTest = customtkinter.CTkButton(master=self.frame_ATS,
+                                                            text="Photovoltaic Test", 
+                                                            width=200,
+                                                            command=self.photoVoltaicTest,
+                                                            fg_color=self.actionButtonColor)
+        self.button_photoVoltaicTest.grid(row=5, column=0, pady=10, padx=10, sticky="n")
+
         self.button_graphLive = customtkinter.CTkButton(master=self.frame_ATS,
                                                         text="Graph live",
                                                         width=200,
                                                         command=self.graphLive)
-        self.button_graphLive.grid(row=4, column=0, pady=10, padx=10, sticky="n")
+        self.button_graphLive.grid(row=6, column=0, pady=10, padx=10, sticky="n")
 
         self.label_runningTest = customtkinter.CTkLabel(master=self.frame_ATS,
                                                         text="No Test is currently running",
                                                         text_font=("Roboto Medium", -16),
                                                         width=200,
                                                         )
-        self.label_runningTest.grid(row=6, column=0, pady=10, padx=10, sticky="n")
+        self.label_runningTest.grid(row=8, column=0, pady=10, padx=10, sticky="n")
 
         self.label_runningTest.configure(bg=self.noTestRunningColor)
 
@@ -309,6 +327,8 @@ class GUI(customtkinter.CTk):
             self.label_C.configure(text= '{:06.2f}'.format(current) + " A")
             self.label_P.configure(text= '{:06.2f}'.format(float(volts) * float(current)) + " W")
             self.volts.append(float(volts))
+            self.amps.append(float(current))
+            self.watts.append(float(volts) * float(current))
 
             if (self.testController.event.is_set()):
                 if (self.testType != ""):
@@ -348,20 +368,31 @@ class GUI(customtkinter.CTk):
         self.testType = "endurance test"
         self.startAutomatedTestSequence()
 
+    def upsTest(self):
+        self.testType = "ups test"
+        self.startAutomatedTestSequence()
+
+    def photoVoltaicTest(self):
+        self.testType = "photovoltaic test"
+        self.startAutomatedTestSequence()
+
     def graphLive(self):
         plt.style.use("ggplot")
         self.fig, ax = plt.subplots()
-        self.animation = FuncAnimation(self.fig, self.funcAnimate, interval = 1000)
-        plt.xlabel("time (s)")
-        plt.ylabel("voltage")
+        self.animationVolts = FuncAnimation(self.fig, self.funcAnimateVolts, interval = 30000)
+        plt.xlabel("Time (S)")
+        plt.ylabel("Volts (Blátt)    Amps (Gult)    Watts (Rautt) ")
+
         plt.show()
     
-    def funcAnimate(self, i):
+    def funcAnimateVolts(self, i):
         try:
             self.fig = plt.plot(self.volts, color=self.actionButtonColor)
+            self.fig = plt.plot(self.amps, color="r")
+            self.fig= plt.plot(self.watts, color="y")
         except:
-            self.animation.pause()
-            
+            self.animationVolts.pause()
+
 
 
 
@@ -442,51 +473,70 @@ class GUI(customtkinter.CTk):
         self.entryChargeTimeTextVar.set(0)
 
 
+        self.label_DischargeTime = customtkinter.CTkLabel(master=self.automatetTestSequenceWindow,
+                                               text = "Discharging time (minutes):")
+        self.label_DischargeTime.grid(row=1,column=1,padx=10,pady=10, sticky = "w")
+
+        self.entryDischargeTimeTextVar = StringVar()
+        self.entryDischargeTime = customtkinter.CTkEntry(master=self.automatetTestSequenceWindow, textvariable=self.entryDischargeTimeTextVar)
+        self.entryDischargeTime.grid(row=1,column=2,padx=10,pady=10, sticky = "w")
+        self.entryDischargeTimeTextVar.set(0)
+
+
         self.label_WaitTime = customtkinter.CTkLabel(master=self.automatetTestSequenceWindow,
                                                text = "Waiting time (minutes):")
-        self.label_WaitTime.grid(row=1,column=1,padx=10,pady=10, sticky = "w")
+        self.label_WaitTime.grid(row=2,column=1,padx=10,pady=10, sticky = "w")
 
         self.entryWaitTimeTextVar = StringVar()
         self.entryWaitTime = customtkinter.CTkEntry(master=self.automatetTestSequenceWindow, textvariable=self.entryWaitTimeTextVar)
-        self.entryWaitTime.grid(row=1,column=2,padx=10,pady=10, sticky = "w")
+        self.entryWaitTime.grid(row=2,column=2,padx=10,pady=10, sticky = "w")
         self.entryWaitTimeTextVar.set(0)
 
 
         self.label_numCycles = customtkinter.CTkLabel(master=self.automatetTestSequenceWindow,
                                                text = "Number of cycles:")
-        self.label_numCycles.grid(row=2,column=1,padx=10,pady=10, sticky = "w")
+        self.label_numCycles.grid(row=3,column=1,padx=10,pady=10, sticky = "w")
 
         self.entryNumCyclesTextVar = StringVar()
         self.entryNumCycles = customtkinter.CTkEntry(master=self.automatetTestSequenceWindow, textvariable=self.entryNumCyclesTextVar)
-        self.entryNumCycles.grid(row=2,column=2,padx=10,pady=10, sticky = "w")
+        self.entryNumCycles.grid(row=3,column=2,padx=10,pady=10, sticky = "w")
         self.entryNumCyclesTextVar.set(0)
 
 
-        self.label_cPar = customtkinter.CTkLabel(master=self.automatetTestSequenceWindow,
-                                               text = "C-rate Parameters:")
-        self.label_cPar.grid(row=3,column=1,padx=10,pady=10, sticky = "w")
+        self.label_cParCharge = customtkinter.CTkLabel(master=self.automatetTestSequenceWindow,
+                                               text = "C-rate Charging Parameters:")
+        self.label_cParCharge.grid(row=4,column=1,padx=10,pady=10, sticky = "w")
 
-        self.entryCParTextVar = StringVar()
-        self.entryCPar = customtkinter.CTkEntry(master=self.automatetTestSequenceWindow, textvariable=self.entryCParTextVar)
-        self.entryCPar.grid(row=3,column=2,padx=10,pady=10, sticky = "w")
-        self.entryCParTextVar.set(0)
+        self.entryCParChargeTextVar = StringVar()
+        self.entryCParCharge = customtkinter.CTkEntry(master=self.automatetTestSequenceWindow, textvariable=self.entryCParChargeTextVar)
+        self.entryCParCharge.grid(row=4,column=2,padx=10,pady=10, sticky = "w")
+        self.entryCParChargeTextVar.set(0)
+
+        self.label_cParDischarge = customtkinter.CTkLabel(master=self.automatetTestSequenceWindow,
+                                               text = "C-rate Discharging Parameters:")
+        self.label_cParDischarge.grid(row=5,column=1,padx=10,pady=10, sticky = "w")
+
+        self.entryCParDischargeTextVar = StringVar()
+        self.entryCParDischarge = customtkinter.CTkEntry(master=self.automatetTestSequenceWindow, textvariable=self.entryCParDischargeTextVar)
+        self.entryCParDischarge.grid(row=5,column=2,padx=10,pady=10, sticky = "w")
+        self.entryCParDischargeTextVar.set(0)
 
         self.label_TempPar = customtkinter.CTkLabel(master=self.automatetTestSequenceWindow,
                                                text = "Temperature (celsius):")
-        self.label_TempPar.grid(row=4,column=1,padx=10,pady=10, sticky = "w")
+        self.label_TempPar.grid(row=6,column=1,padx=10,pady=10, sticky = "w")
 
         self.entryTempParTextVar = StringVar()
         self.entryTempPar = customtkinter.CTkEntry(master=self.automatetTestSequenceWindow, textvariable=self.entryTempParTextVar)
-        self.entryTempPar.grid(row=4,column=2,padx=10,pady=10, sticky = "w")
+        self.entryTempPar.grid(row=6,column=2,padx=10,pady=10, sticky = "w")
         self.entryTempParTextVar.set(0)
 
 
 
         self.button_run_test = customtkinter.CTkButton(master = self.automatetTestSequenceWindow, text="Run", command=self.runTest, fg_color=self.actionButtonColor)
-        self.button_run_test.grid(row=5,column=2,padx=10, pady=10)
+        self.button_run_test.grid(row=7,column=2,padx=10, pady=10)
 
         self.button_cancel_test = customtkinter.CTkButton(master = self.automatetTestSequenceWindow, text="Cancel", command=self.cancelTest)
-        self.button_cancel_test.grid(row=5,column=1,padx=10, pady=10)
+        self.button_cancel_test.grid(row=7,column=1,padx=10, pady=10)
 
 
         
@@ -563,7 +613,7 @@ class GUI(customtkinter.CTk):
                 self.entryChargeTimeTextVar.get(),
                 self.entryWaitTimeTextVar.get(),
                 self.entryNumCyclesTextVar.get(),
-                eval("list({" + self.entryCParTextVar.get() + "})" ),
+                eval("list({" + self.entryCParChargeTextVar.get() + "})" ),
                 self.entryTempPar.get()
             ))
             self.capacityThread.start()
@@ -573,10 +623,31 @@ class GUI(customtkinter.CTk):
                 self.entryChargeTimeTextVar.get(),
                 self.entryWaitTimeTextVar.get(),
                 self.entryNumCyclesTextVar.get(),
-                eval("list({" + self.entryCParTextVar.get() + "})" ),
+                eval("list({" + self.entryCParChargeTextVar.get() + "})" ),
                 self.entryTempParTextVar.get()
             ))
             self.enduranceThread.start()
+        elif (self.testType == "ups test"):
+            self.testController.event.clear()
+            self.upsThread = threading.Thread(target=self.testController.upsTest, args=(
+                self.entryChargeTimeTextVar.get(),
+                self.entryDischargeTimeTextVar.get(),
+                self.entryWaitTimeTextVar.get(),
+                self.entryNumCyclesTextVar.get(),
+                eval("list({" + self.entryCParChargeTextVar.get() + "})" ),
+                self.entryTempParTextVar.get()
+            ))
+            self.upsThread.start()
+        elif (self.testType == "photovoltaic test"):
+            self.testController.event.clear()
+            self.photovoltaicThread = threading.Thread(target=self.testController.PhotoVoltaicTest, args=(
+                self.entryWaitTimeTextVar.get(),
+                self.entryNumCyclesTextVar.get(),
+                eval("list({" + self.entryCParChargeTextVar.get() + "})" ),
+                self.entryCParDischargeTextVar.get(),
+                self.entryTempParTextVar.get()
+            ))
+            self.photovoltaicThread.start()
         self.automatetTestSequenceWindow.destroy()
         self.label_runningTest.configure(bg = self.testRunningColor)
         self.label_runningTest.configure(text = f"Running {self.testType}")
