@@ -17,7 +17,8 @@ import pandas as pd
 
 # Class used to control test procedures
 class TestController:
-    # Variable for keeping track of the open circuit voltage of a full battery
+    timeInterval = float(0.2)
+    # Variable for keeping track of the open csircuit voltage of a full battery
     OCVFull = 0.0
     # Variable for keeping track of the open circuit voltage of a empty battery
     OCVEmpty = 0.0
@@ -216,6 +217,8 @@ class TestController:
 
 
     def upsTest(self, chargeTime : int, dischargeTime : int, waitTime : int, numCycles : int, CPar, temp : int):
+        startTime = time.time()
+        currentMeasurement = 1.0
         self.event.clear()
         # Create a loop that will run one time for each element of the eather CPar or TempPar
         for cParameter in CPar: 
@@ -227,7 +230,10 @@ class TestController:
                 self.chargeCV(self.OCVFull)
                 # Wait the desired amount of minutes
                 print(f"Charging for {chargeTime} min")
-                for i in range(floor(float(chargeTime) * 60)):
+                for i in range(floor(float(chargeTime) * 60 * (1 / self.timeInterval))):
+                    nextMeasurement = startTime + (currentMeasurement - 1) * self.timeInterval - time.time()
+                    if(nextMeasurement > 0.0):
+                        time.sleep(nextMeasurement)
                     # Break the loop if the testing has been manualy stopped
                     if (self.event.is_set()):
                         print("Testing has beed manually stopped")
@@ -238,7 +244,13 @@ class TestController:
                     c = self.getCurrent()
                     dataStorage.addVoltage(v)
                     dataStorage.addCurrent(c)
-                    time.sleep(1)
+                    currentMeasurement += 1
+                    # deltaPointA = dataStorage.volts[int(currentMeasurement) - 1]
+                    # deltaPointB = dataStorage.volts[int(currentMeasurement) - 1 - (300/self.timeInterval)]
+                    # deltaPointC = dataStorage.volts[int(currentMeasurement) - 1 - (600/self.timeInterval)]
+                    # if (abs(deltaPointC - deltaPointB) < 0.01) and (abs(deltaPointB - deltaPointA) < 0.01):
+                        # print("Moving to next phase due to inactivity")
+                        # break
                 # Once the OCV has reached OCVFull we can start discharging
                 self.stopCharge()
                 # Wait the desired number of seconds
@@ -254,10 +266,13 @@ class TestController:
                     dataStorage.addCurrent(c)
                     time.sleep(1)
                 # Discharging at c rate current
-                self.dischargeCC(self.C_rate * cParameter)
+                self.dischargeCC(float(self.C_rate) * float(cParameter))
                 # Creating a loop that will break once voltage has reached desired levels
                 print(f"Starting discharge in cycle nr.{cycleNumber + 1} with discharge rate {cParameter}C")
-                for i in range(floor(float(dischargeTime) * 60.0)):
+                for i in range(floor(float(dischargeTime) * 60.0 * (1 / self.timeInterval))):
+                    nextMeasurement = startTime + (currentMeasurement - 1) * self.timeInterval - time.time()
+                    if(nextMeasurement > 0.0):
+                        time.sleep(nextMeasurement)
                     if (self.event.is_set()):
                         print("Testing has beed manually stopped")
                         self.event.clear()
@@ -267,7 +282,13 @@ class TestController:
                     c = self.getCurrent()
                     dataStorage.addVoltage(v)
                     dataStorage.addCurrent(c)
-                    time.sleep(1)
+                    currentMeasurement += 1
+                    deltaPointA = dataStorage.volts[int(currentMeasurement) - 1]
+                    deltaPointB = dataStorage.volts[int(currentMeasurement) - 1 - (300/self.timeInterval)]
+                    deltaPointC = dataStorage.volts[int(currentMeasurement) - 1 - (600/self.timeInterval)]
+                    if (abs(deltaPointC - deltaPointB) < 0.01) and (abs(deltaPointB - deltaPointA) < 0.01):
+                        print("Moving to next phase due to inactivity")
+                        break
                 # Stop discharging battery
                 self.electronicLoadController.stopDischarge()
                 # Create a table from the current test data
@@ -276,7 +297,9 @@ class TestController:
         self.event.set()
 
 
-    def PhotoVoltaicTest(self, waitTime : int, numCycles : int, CParCharge, CParDischarge : int, temp : int):
+    def PhotoVoltaicTest(self, waitTime : int, numCycles : int, CParCharge, CParDischarge, temp : int):
+        startTime = time.time()
+        currentMeasurement = 1.0
         self.event.clear()
         # Create a loop that will run one time for each element of the eather CPar or TempPar
         for cParameter in CParCharge: 
@@ -284,11 +307,15 @@ class TestController:
             for cycleNumber in range(int(numCycles)): 
                 # dataStorage object to keep track of tets data
                 dataStorage = DataStorage()
-                # Charge with a constant voltage of self.OCVFull
-                self.chargeCC(float(CParDischarge) * float(self.C_rate))
+                # Charge with a constant current
+                self.chargeCC(float(cParameter) * float(self.C_rate))
                 # Wait until the desired voltage is reached
                 print(f"Charging")
+                chargingStartTime = time.time()
                 while (True):
+                    nextMeasurement = startTime + (currentMeasurement - 1) * self.timeInterval - time.time()
+                    if(nextMeasurement > 0.0):
+                        time.sleep(nextMeasurement)
                     if (self.event.is_set()):
                         print("Testing has beed manually stopped")
                         self.event.clear()
@@ -298,29 +325,20 @@ class TestController:
                     c = self.getCurrent()
                     dataStorage.addVoltage(v)
                     dataStorage.addCurrent(c)
-                    if (float(v) > self.OCVFull):
+                    print("Volts: " + str(v) )
+                    print("Amps: " + str(c) + "/n")
+                    if (float(v) > self.OCVFull or float(time.time() - chargingStartTime > 36000)):
                         break
-                    time.sleep(1)
                 # Once the OCV has reached OCVFull we can start discharging
                 self.stopCharge()
-                # Wait the desired number of seconds
-                print(f"Wating for {waitTime} min")
-                for i in range(floor(float(waitTime) * 60)):
-                    if (self.event.is_set()):
-                        print("Testing has beed manually stopped")
-                        self.event.clear()
-                        exit()
-                    v = self.getVoltage()
-                    c = self.getCurrent()
-                    dataStorage.addVoltage(v)
-                    dataStorage.addCurrent(c)
-                    time.sleep(1)
                 # Discharging at c rate current
-                self.dischargeCC(self.C_rate * cParameter)
-                
+                self.dischargeCC(float(self.C_rate) * float(CParDischarge))
                 # Creating a loop that will break once voltage has reached desired levels
                 print(f"Starting discharge in cycle nr.{cycleNumber + 1} with discharge rate {cParameter}C")
                 while (True):
+                    nextMeasurement = startTime + (currentMeasurement - 1) * self.timeInterval - time.time()
+                    if(nextMeasurement > 0.0):
+                        time.sleep(nextMeasurement)
                     if (self.event.is_set()):
                         print("Testing has beed manually stopped")
                         self.event.clear()
@@ -332,7 +350,6 @@ class TestController:
                     dataStorage.addCurrent(c)
                     if (float(v) < self.OCVEmpty):
                         break
-                    time.sleep(1)
                 # Stop discharging battery
                 self.electronicLoadController.stopDischarge()
                 # Create a table from the current test data
@@ -380,11 +397,12 @@ class DataStorage:
         # Store the table in a text file
         today = date.today() 
         try:
-            with open(f"Desktop/ALOR/Al-ion Battery Test Software/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "w") as f:
+            with open(f"C:/Users/runson/Dropbox/Sharing/Alor test/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "w") as f:
                 f.write(str(table))
-            df.to_csv(f"Desktop/ALOR/Al-ion Battery Test Software/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".csv", index=False)
+            df.to_csv(f"C:/Users/runson/Dropbox/Sharing/Alor test/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".csv", index=False)
         except:
             abs = os.path.abspath("").replace("\\", "/")
+            print(abs)
             with open(f"{abs}/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "x") as f:
                 f.write(str(table))
             df.to_csv(f"{abs}/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".csv", index=False)

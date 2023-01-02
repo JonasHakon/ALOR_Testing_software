@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="b8a1fa57-3a11-4f27-b3dd-6310dc6b0969" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/AlIonBatteryTestSoftware.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlIonBatteryTestSoftware.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AlIonTestSoftwareGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/AlIonTestSoftwareGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity Test for 0.15C nr. 1 at 18° celsius     15_12_2022 15_18_55.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity Test for 0.1C nr. 1 at 13° celsius     01_10_2022 16_37_50.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity Test for 0.1C nr. 2 at 13° celsius     01_10_2022 16_37_51.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity Test for 0.1C nr. 3 at 13° celsius     01_10_2022 16_37_51.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity Test for 0.2C nr. 1 at 13° celsius     01_10_2022 16_37_51.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity Test for 0.2C nr. 2 at 13° celsius     01_10_2022 16_37_52.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity Test for 0.2C nr. 3 at 13° celsius     01_10_2022 16_37_52.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity Test for 2C nr. 1 at 18° celsius     17_12_2022 20_40_09.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity Test for 2C nr. 2 at 18° celsius     17_12_2022 20_40_18.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity test for 0.15C nr. 1 at 18° celsius     15_12_2022 15_18_54.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity test for 0.1C nr. 1 at 13° celsius     01_10_2022 16_37_50.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity test for 0.1C nr. 2 at 13° celsius     01_10_2022 16_37_51.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity test for 0.1C nr. 3 at 13° celsius     01_10_2022 16_37_51.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity test for 0.2C nr. 1 at 13° celsius     01_10_2022 16_37_51.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity test for 0.2C nr. 2 at 13° celsius     01_10_2022 16_37_51.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity test for 0.2C nr. 3 at 13° celsius     01_10_2022 16_37_52.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity test for 2C nr. 1 at 18° celsius     17_12_2022 20_40_09.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Capacity test for 2C nr. 2 at 18° celsius     17_12_2022 20_40_18.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Endurance Test for 0C nr. 1 at 0° celsius     18_12_2022 22_10_13.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Endurance Test for 0C nr. 1 at 0° celsius     18_12_2022 22_10_13.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Endurance Test for 0C nr. 2 at 0° celsius     18_12_2022 22_10_39.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Endurance Test for 0C nr. 2 at 0° celsius     18_12_2022 22_10_39.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Endurance Test for 0C nr. 3 at 0° celsius     18_12_2022 22_10_54.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/Endurance Test for 0C nr. 3 at 0° celsius     18_12_2022 22_10_54.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/UPS Test for 0C nr. 1 at 0° celsius     17_12_2022 23_26_35.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/UPS Test for 0C nr. 2 at 0° celsius     17_12_2022 23_26_47.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data/UPS Test for 0C nr. 3 at 0° celsius     17_12_2022 23_26_59.txt" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2J6hyCKPS8L554jnfsJgTPjrcFv" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/runson&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="AlIonTestSoftwareGUI" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ALOR_Testing_software" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/AlIonTestSoftwareGUI.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.AlIonTestSoftwareGUI" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b8a1fa57-3a11-4f27-b3dd-6310dc6b0969" name="Changes" comment="" />
+      <created>1671404693107</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1671404693107</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

@@ -634,7 +634,7 @@ class GUI(customtkinter.CTk):
                 self.entryDischargeTimeTextVar.get(),
                 self.entryWaitTimeTextVar.get(),
                 self.entryNumCyclesTextVar.get(),
-                eval("list({" + self.entryCParChargeTextVar.get() + "})" ),
+                eval("list({" + self.entryCParDischargeTextVar.get() + "})" ),
                 self.entryTempParTextVar.get()
             ))
             self.upsThread.start()
