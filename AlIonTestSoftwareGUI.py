@@ -806,4 +806,3 @@ if __name__ == "__main__":
 
     gui.mainloop()
 
-#print(os.path.abspath("Desktop\ALOR\Al-ion Battery Test Software\blackALOR.png"))

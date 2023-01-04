@@ -5,10 +5,10 @@ import time
 import matplotlib.pyplot as plt
 from datetime import date
 from datetime import datetime
-from tabulate import tabulate
 import threading
 from AlIonTestSoftwareDeviceDrivers import PowerSupplyController, ElectronicLoadController, MultimeterController
 from AlIonTestSoftwareDeviceDriversMock import PowerSupplyControllerMock, ElectronicLoadControllerMock, MultimeterControllerMock
+from AlIonTestSoftwareDataManagement import DataStorage
 import os
 import pandas as pd
 
@@ -17,7 +17,9 @@ import pandas as pd
 
 # Class used to control test procedures
 class TestController:
-    timeInterval = float(0.2)
+    # Indicates the number of seconds betwean each measurement
+    timeInterval = 0.2
+
     # Variable for keeping track of the open csircuit voltage of a full battery
     OCVFull = 0.0
     # Variable for keeping track of the open circuit voltage of a empty battery
@@ -141,7 +143,7 @@ class TestController:
                 # Graph results of current test 
                 dataStorage.graphCapacity(cycleNumber, temp, cParameter)
                 # Put results of current test in a table
-                dataStorage.createTable("Capacity Test", cParameter, cycleNumber, temp )
+                dataStorage.createTable("Capacity Test", cParameter, cycleNumber, temp, self.timeInterval, chargeTime )
                 print(f"Capacity stored for cycle nr.{cycleNumber + 1} with C-rate of {cParameter}")
                 # Store the amp hour capacity for the current test
                 ampHourCapacity.append([ASeconds / 3600])
@@ -204,7 +206,7 @@ class TestController:
                 # Stop discharging battery
                 self.electronicLoadController.stopDischarge()
                 # Create a table from the current test data
-                dataStorage.createTable("Endurance Test", cParameter, cycleNumber, temp )
+                dataStorage.createTable("Endurance Test", cParameter, cycleNumber, temp, self.timeInterval, chargeTime )
                 
                 ampHourCapacity.append([ASeconds / 3600])
             # Create a graph from the current test data
@@ -245,12 +247,6 @@ class TestController:
                     dataStorage.addVoltage(v)
                     dataStorage.addCurrent(c)
                     currentMeasurement += 1
-                    # deltaPointA = dataStorage.volts[int(currentMeasurement) - 1]
-                    # deltaPointB = dataStorage.volts[int(currentMeasurement) - 1 - (300/self.timeInterval)]
-                    # deltaPointC = dataStorage.volts[int(currentMeasurement) - 1 - (600/self.timeInterval)]
-                    # if (abs(deltaPointC - deltaPointB) < 0.01) and (abs(deltaPointB - deltaPointA) < 0.01):
-                        # print("Moving to next phase due to inactivity")
-                        # break
                 # Once the OCV has reached OCVFull we can start discharging
                 self.stopCharge()
                 # Wait the desired number of seconds
@@ -283,16 +279,10 @@ class TestController:
                     dataStorage.addVoltage(v)
                     dataStorage.addCurrent(c)
                     currentMeasurement += 1
-                    deltaPointA = dataStorage.volts[int(currentMeasurement) - 1]
-                    deltaPointB = dataStorage.volts[int(currentMeasurement) - 1 - (300/self.timeInterval)]
-                    deltaPointC = dataStorage.volts[int(currentMeasurement) - 1 - (600/self.timeInterval)]
-                    if (abs(deltaPointC - deltaPointB) < 0.01) and (abs(deltaPointB - deltaPointA) < 0.01):
-                        print("Moving to next phase due to inactivity")
-                        break
                 # Stop discharging battery
                 self.electronicLoadController.stopDischarge()
                 # Create a table from the current test data
-                dataStorage.createTable("UPS Test", cParameter, cycleNumber, temp )
+                dataStorage.createTable("UPS Test", cParameter, cycleNumber, temp, self.timeInterval, chargeTime)
         # Set the event to indicate that testing is finished
         self.event.set()
 
@@ -353,98 +343,6 @@ class TestController:
                 # Stop discharging battery
                 self.electronicLoadController.stopDischarge()
                 # Create a table from the current test data
-                dataStorage.createTable("Endurance Test", cParameter, cycleNumber, temp )
+                dataStorage.createTable("Endurance Test", cParameter, cycleNumber, temp, self.timeInterval )
         # Set the event to indicate that testing is finished
         self.event.set()
-
-            
-
-            
-class DataStorage:
-
-    def __init__(self) -> None:
-        # Empty arrays for data
-        self.volts = []
-        self.current = []
-        self.power = []
-        self.amphours = []
-
-    # Function to add voltage value
-    def addVoltage(self, votls : float):
-        self.volts.append(float('{:.4f}'.format(votls)))
-
-    # Function to add current value
-    def addCurrent(self, ampers : float):
-        self.current.append(float('{:.4f}'.format(ampers)))
-
-    # Function for creating a table
-    def createTable(self, testName : string, c_rate : float, cycleNr : int, temperature : float):
-        # Create all the power values by multipling the voltage and current
-        for i in range(len(self.volts)):
-            self.power.append(self.volts[i] * self.current[i])
-        length = len(self.volts)
-        # Create a 2 dimensional list for the data
-        data = [[]]
-        # Fill the list with the results
-        for j in range(len(self.volts)):
-            d = [j, self.volts[j], self.current[j], self.power[j]]
-            data.append(d)
-        # Create a table from the 2 dimentional array
-        head = ["Time in seconds", "Volts", "Current", "Power"]
-        table = tabulate(data, headers=head, tablefmt="simple")
-        df = pd.DataFrame(data, columns=head)
-        print(table)  
-        # Store the table in a text file
-        today = date.today() 
-        try:
-            with open(f"C:/Users/runson/Dropbox/Sharing/Alor test/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "w") as f:
-                f.write(str(table))
-            df.to_csv(f"C:/Users/runson/Dropbox/Sharing/Alor test/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".csv", index=False)
-        except:
-            abs = os.path.abspath("").replace("\\", "/")
-            print(abs)
-            with open(f"{abs}/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".txt", "x") as f:
-                f.write(str(table))
-            df.to_csv(f"{abs}/Data/{testName} for {c_rate}C nr. {cycleNr + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".csv", index=False)
-        # Empty the result values
-        self.volts = []
-        self.current = []
-        self.power = []
-
-    def graphCapacity(self, cyclenumber, temperature, C_rate):
-        # Label the graph correctly
-        plt.style.use("ggplot")
-        plt.xlabel("Time (S)")
-        plt.ylabel("Voltage (V)")
-        plt.title(f"Capacity at {temperature}° celsius with {C_rate} C current")
-        plt.plot(range(len(self.volts)), self.volts, color = "#3a55b4")
-        # Calculate the amphour capacity
-        ahCapacity = len(self.volts) / 3600
-        # Inclue the amphour capacity in the graph
-        plt.legend([f"{'{:.2f}'.format(ahCapacity)} aH Capacity"])
-        # Store the graph in a file
-        try:
-            plt.savefig(f"Desktop/ALOR/Al-ion Battery Test Software/Data/Capacity test for {C_rate}C nr. {cyclenumber + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png")
-        except:
-            plt.savefig(os.path.abspath(f"Data/Capacity test for {C_rate}C nr. {cyclenumber + 1} at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png"))
-        # Clear the graph
-        plt.clf()
-        
-
-    def graphEndurance(self, temperature, C_rate, ampHours):
-        # Label the graph correctly
-        plt.style.use("ggplot")
-        plt.ylabel("Capacity (Ah)")
-        plt.xlabel("Cycle number")
-        plt.title(f"Change in capacity at {temperature}° celsius with {C_rate} C current")
-        plt.plot(range(len(ampHours)), ampHours, "o", color = "#3a55b4")
-        # Store the graph in a file
-        try:
-            plt.savefig(f"Desktop/ALOR/Al-ion Battery Test Software/Data/Endurance test for {C_rate}C at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png")
-        except:
-            plt.savefig(os.path.abspath(f"Data/Endurance test for {C_rate}C at {temperature}° celsius     "  + str(datetime.now().strftime("%d_%m_%Y %H_%M_%S")) + ".png"))
-        # Clear the graph
-        plt.clf()
-        
-
-
